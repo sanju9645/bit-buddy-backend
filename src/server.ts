@@ -3,15 +3,12 @@ import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
 
+import config from "./config";
+
 // Load environment variables
 dotenv.config();
 
 const app = express();
-
-/**
- * -------------- GENERAL SETUP ----------------
- */
-const PORT: number = parseInt(process.env.PORT || '8000', 10);
 
 /**
  * -------------- MIDDLEWARES ----------------
@@ -68,10 +65,11 @@ app.use((req: Request, res: Response) => {
 /**
  * -------------- SERVER ----------------
  */
-const server = app.listen(PORT, () => {
-  console.log(`Server started on http://localhost:${PORT}`);
-  console.log(`Health check available at http://localhost:${PORT}/health`);
-  console.log(`Root endpoint available at http://localhost:${PORT}/`);
+const server = app.listen(config.PORT, () => {
+  console.log(`Server started on http://localhost:${config.PORT}`);
+  console.log(`Health check available at http://localhost:${config.PORT}/health`);
+  console.log(`Root endpoint available at http://localhost:${config.PORT}/`);
+  console.log(`PeerJS server is running on port ${config.PEER_PORT}`);
 });
 
 // Handle unhandled promise rejections
