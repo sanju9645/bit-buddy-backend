@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import dotenv from 'dotenv';
 
 import config from "./config";
+import SocketService from "./services/socketService";
 import PeerService from "./services/peerService";
 
 // Load environment variables
@@ -26,8 +27,19 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 /**
+ * -------------- SERVER ----------------
+ */
+const server = app.listen(config.PORT, () => {
+  console.log(`Server started on http://localhost:${config.PORT}`);
+  console.log(`Health check available at http://localhost:${config.PORT}/health`);
+  console.log(`Root endpoint available at http://localhost:${config.PORT}/`);
+  console.log(`PeerJS server is running on port ${config.PEER_PORT}`);
+});
+
+/**
  * -------------- Initialize services ----------------
  */
+const socketService = new SocketService(server);
 const peerService = new PeerService();
 
 /**
@@ -66,16 +78,6 @@ app.use((req: Request, res: Response) => {
     status: "error",
     message: `Cannot ${req.method} ${req.url}`
   });
-});
-
-/**
- * -------------- SERVER ----------------
- */
-const server = app.listen(config.PORT, () => {
-  console.log(`Server started on http://localhost:${config.PORT}`);
-  console.log(`Health check available at http://localhost:${config.PORT}/health`);
-  console.log(`Root endpoint available at http://localhost:${config.PORT}/`);
-  console.log(`PeerJS server is running on port ${config.PEER_PORT}`);
 });
 
 // Handle unhandled promise rejections
