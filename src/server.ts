@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import dotenv from 'dotenv';
 
 import config from "./config";
+import PeerService from "./services/peerService";
 
 // Load environment variables
 dotenv.config();
@@ -23,6 +24,11 @@ app.use(cors());
 app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+/**
+ * -------------- Initialize services ----------------
+ */
+const peerService = new PeerService();
 
 /**
  * -------------- ROUTES ----------------
