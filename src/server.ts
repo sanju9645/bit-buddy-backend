@@ -6,6 +6,8 @@ import dotenv from 'dotenv';
 import config from "./config";
 import SocketService from "./services/socketService";
 import PeerService from "./services/peerService";
+import { rootHandler, healthCheckHandler } from './routes';
+import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 
 // Load environment variables
 dotenv.config();
@@ -36,49 +38,27 @@ const server = app.listen(config.PORT, () => {
   console.log(`PeerJS server is running on port ${config.PEER_PORT}`);
 });
 
+
 /**
  * -------------- Initialize services ----------------
  */
-const socketService = new SocketService(server);
-const peerService = new PeerService();
+new SocketService(server);
+new PeerService();
+
 
 /**
  * -------------- ROUTES ----------------
  */
-// Root route for testing
-app.get("/", (req: Request, res: Response) => {
-  res.status(200).json({ message: "Server is running" });
-});
+app.get("/", rootHandler);
+app.get("/health", healthCheckHandler);
 
-// Health check route
-app.get("/health", (req: Request, res: Response) => {
-  console.log("Health check endpoint hit");
-  res.status(200).json({ 
-    status: "success",
-    message: "Server is healthy!",
-    timestamp: new Date().toISOString()
-  });
-});
 
 /**
  * -------------- ERROR HANDLING MIDDLEWARE ----------------
  */
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  console.error(err.stack);
-  res.status(500).json({
-    status: "error",
-    message: 'Something went wrong!',
-    error: process.env.NODE_ENV === 'development' ? err.message : undefined
-  });
-});
+app.use(errorHandler);
+app.use(notFoundHandler);
 
-// 404 handler
-app.use((req: Request, res: Response) => {
-  res.status(404).json({
-    status: "error",
-    message: `Cannot ${req.method} ${req.url}`
-  });
-});
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err: Error) => {
